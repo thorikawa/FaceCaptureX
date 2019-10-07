@@ -284,7 +284,26 @@ class ViewController: UIViewController, ARSessionDelegate {
         let arFrame = session.currentFrame!
         guard let anchor = arFrame.anchors[0] as? ARFaceAnchor else {return nil}
         let vertices = anchor.geometry.vertices
-        let data = CaptureData(vertices: vertices, camTransform: arFrame.camera.transform, faceTransform: anchor.transform, blendShapes: anchor.blendShapes)
+
+        let size = arFrame.camera.imageResolution
+        let camera = arFrame.camera
+
+        let modelMatrix = anchor.transform
+
+        let textureCoordinates = vertices.map { vertex -> vector_float2 in
+            let vertex4 = vector_float4(vertex.x, vertex.y, vertex.z, 1)
+            let world_vertex4 = simd_mul(modelMatrix, vertex4)
+            let world_vector3 = simd_float3(x: world_vertex4.x, y: world_vertex4.y, z: world_vertex4.z)
+            let pt = camera.projectPoint(world_vector3,
+                orientation: .portrait,
+                viewportSize: CGSize(
+                    width: CGFloat(size.height),
+                    height: CGFloat(size.width)))
+            let v = 1.0 - Float(pt.x) / Float(size.height)
+            let u = Float(pt.y) / Float(size.width)
+            return vector_float2(u, v)
+        }
+        let data = CaptureData(vertices: vertices, camTransform: arFrame.camera.transform, faceTransform: anchor.transform, blendShapes: anchor.blendShapes, uvs: textureCoordinates)
         return data
     }
     
