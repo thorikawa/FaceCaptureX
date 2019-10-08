@@ -289,7 +289,6 @@ class ViewController: UIViewController, ARSessionDelegate {
         let camera = arFrame.camera
 
         let modelMatrix = anchor.transform
-
         let textureCoordinates = vertices.map { vertex -> vector_float2 in
             let vertex4 = vector_float4(vertex.x, vertex.y, vertex.z, 1)
             let world_vertex4 = simd_mul(modelMatrix, vertex4)
@@ -299,7 +298,7 @@ class ViewController: UIViewController, ARSessionDelegate {
                 viewportSize: CGSize(
                     width: CGFloat(size.height),
                     height: CGFloat(size.width)))
-            let v = 1.0 - Float(pt.x) / Float(size.height)
+            let v = Float(pt.x) / Float(size.height)
             let u = Float(pt.y) / Float(size.width)
             return vector_float2(u, v)
         }
