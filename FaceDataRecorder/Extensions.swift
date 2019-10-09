@@ -13,7 +13,6 @@ import ARKit
 // Capture mode
 enum CaptureMode {
     case record
-    case stream
 }
 
 // Every frame's capture data for streaming or save to text file later.
